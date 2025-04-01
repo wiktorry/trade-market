@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import wiks.trademarket.entities.User;
+import wiks.trademarket.entities.UserAuthRequest;
 import wiks.trademarket.entities.UserGetResponse;
 import wiks.trademarket.exceptions.BadRequestException;
 import wiks.trademarket.repositories.UserRepository;
@@ -26,7 +27,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserGetResponse logInUser(User user) {
-        return null;
+    public UserGetResponse logInUser(UserAuthRequest userRequest) {
+        User user = userRepository.findByEmail(userRequest.email())
+                .orElseThrow(() -> new BadRequestException("User doesn't exist in database"));
+        if (!passwordEncoder.matches(userRequest.password(), user.getPassword())) {
+            throw new BadRequestException("User doesn't exist in database");
+        }
+        return user.toGetResponse();
     }
 }
