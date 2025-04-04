@@ -19,16 +19,25 @@ public class UserRepository {
                     rs.getString("password")));
 
     public User save(User user) {
-        int id = jdbcTemplate
+        jdbcTemplate
                 .update("INSERT INTO users (first_name, last_name, email, password) VALUES (?,?,?,?)",
                         user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword());
         return jdbcTemplate
-                .queryForObject("SELECT * FROM users WHERE id = ?", userRowMapper, id);
+                .queryForObject("SELECT * FROM users WHERE email = ?", userRowMapper, user.getEmail());
     }
 
     public Optional<User> findByEmail(String email) {
         try {
             User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE email = ?", userRowMapper, email);
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<User> findById(int id) {
+        try {
+            User user = jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?", userRowMapper, id);
             return Optional.ofNullable(user);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

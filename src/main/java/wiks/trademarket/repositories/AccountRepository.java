@@ -22,10 +22,11 @@ public class AccountRepository {
     }
 
     public Account save(Account account) {
-        int id = jdbcTemplate
+        jdbcTemplate
                 .update("INSERT INTO accounts (currency, balance, user_id) VALUES (?, ?, ?)",
                         account.getCurrency().toString(), account.getBalance(), account.getUserId());
         return jdbcTemplate
-                .queryForObject("SELECT * FROM accounts WHERE id = ?", accountRowMapper, id);
+                .queryForObject("SELECT * FROM accounts WHERE currency = ? AND user_id = ?",
+                        accountRowMapper, account.getCurrency().toString(), account.getUserId());
     }
 }
